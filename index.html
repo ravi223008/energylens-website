@@ -1,466 +1,468 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Energy Lens | Explainable Governance for Buildings</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <style>
-        :root {
-            --emerald-glow: rgba(16, 185, 129, 0.2);
-            --blue-glow: rgba(59, 130, 246, 0.2);
-        }
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #020617; 
-            color: #f1f5f9; 
-            overflow-x: hidden; 
-        }
-        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
-        
-        .grid-bg {
-            background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
-            background-size: 40px 40px;
-        }
-
-        .glass-card {
-            background: rgba(30, 41, 59, 0.5);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
-        }
-
-        .text-gradient {
-            background: linear-gradient(135deg, #4ade80 0%, #60a5fa 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .glow-button {
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .glow-button:hover {
-            box-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
-            transform: translateY(-2px);
-        }
-
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); opacity: 0.9; }
-            50% { transform: scale(1.1); opacity: 0.5; }
-            100% { transform: scale(0.95); opacity: 0.9; }
-        }
-        .pulse-ring { animation: pulse-ring 3s ease-in-out infinite; }
-
-        html { scroll-behavior: smooth; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #020617; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EnergyLens | Identify Energy Your Building Didn't Need to Use</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #020617;
+    color: #f1f5f9;
+    overflow-x: hidden;
+  }
+  h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+  .grid-bg {
+    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+    background-size: 40px 40px;
+  }
+  .glass-card {
+    background: rgba(30, 41, 59, 0.5);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+  }
+  .text-gradient {
+    background: linear-gradient(135deg, #4ade80 0%, #60a5fa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .glow-button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .glow-button:hover {
+    box-shadow: 0 0 30px rgba(0, 168, 150, 0.5);
+    transform: translateY(-2px);
+  }
+  @keyframes pulse-ring {
+    0% { transform: scale(0.95); opacity: 0.9; }
+    50% { transform: scale(1.1); opacity: 0.5; }
+    100% { transform: scale(0.95); opacity: 0.9; }
+  }
+  .pulse-ring { animation: pulse-ring 3s ease-in-out infinite; }
+  html { scroll-behavior: smooth; }
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #020617; }
+  ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+</style>
 </head>
 <body class="grid-bg">
-    <div id="root"></div>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
 
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
-        
-        const Icon = ({ name, className = "", size = 24 }) => {
-            const iconRef = useRef(null);
-            useEffect(() => {
-                if (window.lucide) {
-                    window.lucide.createIcons();
-                }
-            }, [name]);
-            return <i data-lucide={name} className={className} style={{ width: size, height: size, display: 'inline-block' }}></i>;
-        };
+const Icon = ({ name, className = "", size = 24 }) => {
+  const iconRef = useRef(null);
+  useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [name]);
+  return <i data-lucide={name} className={className} style={{ width: size, height: size, display: 'inline-block' }}></i>;
+};
 
-        const App = () => {
-            const [isScrolled, setIsScrolled] = useState(false);
-            const [wastageValue, setWastageValue] = useState(14.2);
-            const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+const App = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [wastageValue, setWastageValue] = useState(14.2);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-            useEffect(() => {
-                const handleScroll = () => setIsScrolled(window.scrollY > 20);
-                window.addEventListener('scroll', handleScroll);
-                
-                const interval = setInterval(() => {
-                    setWastageValue(prev => {
-                        const next = parseFloat(prev) + (Math.random() * 0.4 - 0.2);
-                        return Math.max(8.5, parseFloat(next.toFixed(1)));
-                    });
-                }, 3000);
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    const interval = setInterval(() => {
+      setWastageValue(prev => {
+        const next = parseFloat(prev) + (Math.random() * 0.4 - 0.2);
+        return Math.max(8.5, parseFloat(next.toFixed(1)));
+      });
+    }, 3000);
+    return () => { window.removeEventListener('scroll', handleScroll); clearInterval(interval); };
+  }, []);
 
-                return () => {
-                    window.removeEventListener('scroll', handleScroll);
-                    clearInterval(interval);
-                };
-            }, []);
+  const navLinks = [
+    { name: 'Problem', href: '#problem' },
+    { name: 'How It Works', href: '#how' },
+    { name: 'Impact', href: '#impact' },
+    { name: 'Team', href: '#team' },
+    { name: 'Roadmap', href: '#roadmap' }
+  ];
 
-            const navLinks = [
-                { name: 'Problem', href: '#problem' },
-                { name: 'Explainability', href: '#explain' },
-                { name: 'Impact Engine', href: '#impact' },
-                { name: 'Team', href: '#about' },
-                { name: 'Roadmap', href: '#roadmap' }
-            ];
+  return (
+    <div className="min-h-screen">
 
-            return (
-                <div className="min-h-screen">
-                    {/* Atmospheric Lighting */}
-                    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-                        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-emerald-500/20 blur-[160px] rounded-full opacity-60" />
-                        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-600/15 blur-[160px] rounded-full opacity-60" />
-                    </div>
+      {/* Atmospheric Lighting */}
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-teal-500/20 blur-[160px] rounded-full opacity-60" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-600/15 blur-[160px] rounded-full opacity-60" />
+      </div>
 
-                    {/* Navigation */}
-                    <nav className={`fixed w-full z-50 transition-all duration-500 px-6 ${isScrolled ? 'py-4' : 'py-8'}`}>
-                        <div className={`max-w-7xl mx-auto flex justify-between items-center px-8 py-4 rounded-3xl border border-white/10 transition-all ${isScrolled || mobileMenuOpen ? 'glass-card bg-slate-900/90 shadow-2xl' : 'bg-transparent'}`}>
-                            <div className="flex items-center gap-4 group cursor-pointer">
-                                <div className="p-2.5 bg-emerald-500 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.4)] group-hover:rotate-12 transition-transform">
-                                    <Icon name="layers" className="text-slate-950" size={22} />
-                                </div>
-                                <span className="text-2xl font-bold tracking-tighter text-white uppercase italic">INFRA<span className="text-emerald-400 not-italic font-light">LYTIX</span></span>
-                            </div>
-                            
-                            <div className="hidden md:flex items-center gap-10">
-                                {navLinks.map(link => (
-                                    <a key={link.name} href={link.href} className="text-[11px] font-black uppercase tracking-[0.25em] text-slate-300 hover:text-emerald-400 transition-colors">
-                                        {link.name}
-                                    </a>
-                                ))}
-                                <button className="glow-button bg-white text-slate-950 px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg">
-                                    Request Pilot
-                                </button>
-                            </div>
+      {/* Navigation */}
+      <nav className={`fixed w-full z-50 transition-all duration-500 px-6 ${isScrolled ? 'py-4' : 'py-8'}`}>
+        <div className={`max-w-7xl mx-auto flex justify-between items-center px-8 py-4 rounded-3xl border border-white/10 transition-all ${isScrolled || mobileMenuOpen ? 'glass-card bg-slate-900/90 shadow-2xl' : 'bg-transparent'}`}>
+          <div className="flex items-center gap-4 group cursor-pointer">
+            <div className="p-2.5 bg-teal-500 rounded-xl shadow-[0_0_15px_rgba(0,168,150,0.4)] group-hover:rotate-12 transition-transform">
+              <Icon name="eye" className="text-slate-950" size={22} />
+            </div>
+            <span className="text-2xl font-bold tracking-tighter text-white">Energy<span className="text-teal-400 font-light">Lens</span></span>
+          </div>
+          <div className="hidden md:flex items-center gap-10">
+            {navLinks.map(link => (
+              <a key={link.name} href={link.href} className="text-[11px] font-black uppercase tracking-[0.25em] text-slate-300 hover:text-teal-400 transition-colors">
+                {link.name}
+              </a>
+            ))}
+            <a href="mailto:rvij007@aucklanduni.ac.nz" className="glow-button bg-teal-500 text-slate-950 px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg">
+              Request Pilot
+            </a>
+          </div>
+          <button className="md:hidden text-white" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            <Icon name={mobileMenuOpen ? "x" : "menu"} size={24} />
+          </button>
+        </div>
+      </nav>
 
-                            <button className="md:hidden text-white" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                                <Icon name={mobileMenuOpen ? "x" : "menu"} size={24} />
-                            </button>
-                        </div>
-                    </nav>
+      {/* Hero */}
+      <section className="relative pt-64 pb-32 px-6 z-10">
+        <div className="max-w-6xl mx-auto text-center">
+          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-slate-900 border border-teal-500/30 text-teal-400 text-[11px] font-bold uppercase tracking-[0.4em] mb-12 shadow-2xl">
+            <Icon name="shield-check" size={16} />
+            Read-Only · No Hardware · No System Changes
+          </div>
+          <h1 className="text-6xl md:text-[7rem] font-bold text-white leading-[0.9] tracking-tighter mb-10">
+            Identify energy your<br/>
+            building <span className="text-gradient italic">didn't need</span> to use.
+          </h1>
+          <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed mb-8 font-light">
+            Buildings don't just waste energy when they fail.<br/>They waste energy even when everything is working perfectly.
+          </p>
+          <p className="text-base text-slate-400 max-w-2xl mx-auto leading-relaxed mb-20 italic">
+            EnergyLens asks the question no existing system asks: <span className="text-white font-semibold not-italic">"Was this energy operationally necessary?"</span>
+          </p>
+          <div className="flex flex-wrap justify-center gap-12 md:gap-24 items-center mb-16">
+            <div className="text-center group">
+              <div className="text-6xl font-black text-white mb-2 tracking-tighter group-hover:text-teal-400 transition-colors">10–30%</div>
+              <div className="text-[11px] uppercase tracking-[0.3em] text-slate-400 font-black">Typical Cost Recovery Potential</div>
+            </div>
+            <div className="h-20 w-px bg-white/20 hidden md:block" />
+            <div className="text-center group">
+              <div className="text-6xl font-black text-white mb-2 tracking-tighter group-hover:text-teal-400 transition-colors">Zero</div>
+              <div className="text-[11px] uppercase tracking-[0.3em] text-slate-400 font-black">Hardware Required</div>
+            </div>
+            <div className="h-20 w-px bg-white/20 hidden md:block" />
+            <div className="text-center group">
+              <div className="text-6xl font-black text-white mb-2 tracking-tighter group-hover:text-teal-400 transition-colors">$54K</div>
+              <div className="text-[11px] uppercase tracking-[0.3em] text-slate-400 font-black">Annual Waste · One Building · Zero Alarms</div>
+            </div>
+          </div>
+          <div className="flex flex-wrap justify-center gap-4">
+            <a href="mailto:rvij007@aucklanduni.ac.nz" className="glow-button bg-teal-500 text-slate-950 px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg">
+              Request a Free Pilot Audit
+            </a>
+            <a href="#how" className="px-10 py-4 rounded-2xl font-black text-sm uppercase tracking-widest border border-white/20 text-slate-300 hover:border-teal-500/40 hover:text-teal-400 transition-all">
+              See How It Works
+            </a>
+          </div>
+        </div>
+      </section>
 
-                    {/* Hero Section */}
-                    <section className="relative pt-64 pb-32 px-6 z-10">
-                        <div className="max-w-6xl mx-auto text-center">
-                            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-slate-900 border border-emerald-500/30 text-emerald-400 text-[11px] font-bold uppercase tracking-[0.4em] mb-12 shadow-2xl">
-                                <Icon name="shield-check" size={16} />
-                                Read-Only Operational Insight Layer
-                            </div>
-                            
-                            <h1 className="text-6xl md:text-[7.5rem] font-bold text-white leading-[0.9] tracking-tighter mb-10">
-                                See the energy you <br/>
-                                <span className="text-gradient italic">didn't know</span> was wasted.
-                            </h1>
-                            
-                            <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed mb-20 font-light italic">
-                                "Because not every running system should be running."
-                            </p>
-                            
-                            <div className="flex flex-wrap justify-center gap-12 md:gap-24 items-center">
-                                <div className="text-center group">
-                                    <div className="text-6xl font-black text-white mb-2 tracking-tighter group-hover:text-emerald-400 transition-colors italic">10-30%</div>
-                                    <div className="text-[11px] uppercase tracking-[0.3em] text-slate-400 font-black">Avg. Cost Recovery Potential</div>
-                                </div>
-                                <div className="h-20 w-px bg-white/20 hidden md:block" />
-                                <div className="text-center group">
-                                    <div className="text-6xl font-black text-white mb-2 tracking-tighter group-hover:text-emerald-400 transition-colors italic">Zero</div>
-                                    <div className="text-[11px] uppercase tracking-[0.3em] text-slate-400 font-black">Control Risk (Read-Only)</div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Problem Section */}
-                    <section id="problem" className="py-40 px-6 z-10 relative bg-slate-900/40 border-y border-white/10 shadow-inner">
-                        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-24 items-center">
-                            <div>
-                                <h2 className="text-5xl md:text-7xl font-bold text-white mb-10 leading-[0.95] tracking-tight italic">
-                                    BMS executes rules, <br/> <span className="text-emerald-400 not-italic font-light">but doesn't judge.</span>
-                                </h2>
-                                <p className="text-xl text-slate-200 mb-12 font-light leading-relaxed">
-                                    Operators are flooded with component alarms, not system-wide insights. Energy Lens sits above your BMS to answer the one missing question: <span className="text-white font-bold italic">"Is this energy usage justified?"</span>
-                                </p>
-                                <div className="grid gap-10">
-                                    {[
-                                        { t: "After-Hours Run", d: "Systems running at full load when terminals stand empty." },
-                                        { t: "Overcooling Waste", d: "Excessive cooling driving costs without improving comfort." },
-                                        { t: "Override Persistence", d: "Manual overrides that are never returned to auto-logic." }
-                                    ].map((item, i) => (
-                                        <div key={i} className="flex gap-6 group">
-                                            <div className="p-3 h-fit bg-emerald-500/20 rounded-xl group-hover:bg-emerald-500/30 transition-colors border border-emerald-500/20">
-                                                <Icon name="alert-triangle" size={20} className="text-emerald-400" />
-                                            </div>
-                                            <div>
-                                                <h4 className="text-white font-bold text-xl mb-1">{item.t}</h4>
-                                                <p className="text-slate-400 text-base leading-relaxed">{item.d}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="glass-card p-12 rounded-[4rem] relative overflow-hidden border-white/20 shadow-emerald-500/10 shadow-2xl bg-slate-900/80">
-                                <div className="flex justify-between items-center mb-12">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-3 h-3 rounded-full bg-red-500 pulse-ring shadow-[0_0_12px_rgba(239,68,68,0.7)]" />
-                                        <span className="text-xs font-black tracking-widest uppercase text-slate-300">System Anomaly Detected</span>
-                                    </div>
-                                    <div className="px-3 py-1.5 rounded bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] font-black uppercase">Terminal 2 West</div>
-                                </div>
-                                <div className="space-y-10">
-                                    <div className="h-56 flex items-end gap-2.5 border-b border-white/20 pb-4 px-2">
-                                        {[25, 35, 30, 85, 95, 90, 88].map((h, i) => (
-                                            <div key={i} className={`flex-1 rounded-t-xl transition-all duration-700 ${i > 2 ? 'bg-red-500/60 border-t-2 border-red-400' : 'bg-slate-700 border-t-2 border-slate-500'}`} style={{ height: `${h}%` }} />
-                                        ))}
-                                    </div>
-                                    <div className="flex justify-between text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                                        <span>00:00 AM</span>
-                                        <span className="text-red-400 font-black tracking-[0.2em]">Unjustified runtime leakage</span>
-                                        <span>06:00 AM</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Explainability Section */}
-                    <section id="explain" className="py-40 px-6 z-10 relative">
-                        <div className="max-w-4xl mx-auto">
-                            <div className="text-center mb-24">
-                                <h2 className="text-5xl md:text-7xl font-bold text-white mb-8 italic">Explainable Audit</h2>
-                                <p className="text-slate-300 text-xl font-light leading-relaxed">Every insight is traceable to logic that operational teams understand and trust.</p>
-                            </div>
-
-                            <div className="space-y-6">
-                                <div className="glass-card p-12 rounded-[3.5rem] border-white/15 bg-slate-900/60">
-                                    <div className="flex flex-col md:flex-row gap-10 items-start mb-12">
-                                        <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 flex items-center justify-center shrink-0 border border-emerald-500/30">
-                                            <span className="text-emerald-400 text-xl font-black italic">01</span>
-                                        </div>
-                                        <div>
-                                            <h3 className="text-2xl font-bold text-white mb-3 italic">What happened?</h3>
-                                            <p className="text-slate-200 leading-relaxed font-light text-xl italic">
-                                                "AHU-04 is running at 100% cooling load, but the terminal departure gates report <span className="text-emerald-400">zero passengers</span> and 22°C ambient temperature."
-                                            </p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="flex flex-col md:flex-row gap-10 items-start mb-12">
-                                        <div className="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center shrink-0 border border-blue-500/30">
-                                            <span className="text-blue-400 text-xl font-black italic">02</span>
-                                        </div>
-                                        <div>
-                                            <h3 className="text-2xl font-bold text-white mb-3 italic">Why it matters?</h3>
-                                            <p className="text-slate-200 leading-relaxed font-light text-lg">
-                                                This creates a <span className="text-white font-bold border-b border-white/30">₹4,200/hour</span> leakage and a <span className="text-white font-bold border-b border-white/30">12kg CO₂</span> penalty.
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-col md:flex-row gap-10 items-start">
-                                        <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center shrink-0 border border-white/20">
-                                            <span className="text-slate-400 text-xl font-black italic">03</span>
-                                        </div>
-                                        <div>
-                                            <h3 className="text-2xl font-bold text-white mb-3 italic">Actionable Insight</h3>
-                                            <p className="text-slate-300 leading-relaxed font-light text-lg">
-                                                Manual setpoint override (18°C) detected on zone controller B-12. <span className="text-white">Recommend returning to auto-logic.</span>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="text-center pt-8">
-                                    <span className="text-xs font-black uppercase tracking-[0.5em] text-slate-500">Audit-ready evidence for facilities & finance</span>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Impact Engine */}
-                    <section id="impact" className="py-40 px-6 z-10 relative bg-slate-900/60 border-y border-white/10">
-                        <div className="max-w-7xl mx-auto">
-                            <div className="text-center max-w-3xl mx-auto mb-32">
-                                <h2 className="text-5xl md:text-7xl font-bold text-white mb-8 italic">The Impact Engine</h2>
-                                <p className="text-slate-300 text-2xl font-light italic">Quantifying wastage into accountability.</p>
-                            </div>
-
-                            <div className="grid lg:grid-cols-3 gap-10">
-                                <div className="glass-card p-12 rounded-[4rem] border-white/15 hover:border-emerald-500/30 transition-all group bg-slate-900/40">
-                                    <div className="mb-10 p-5 bg-emerald-500/20 rounded-2xl inline-block group-hover:scale-110 transition-transform border border-emerald-500/20">
-                                        <Icon name="wind" className="text-emerald-400" size={36} />
-                                    </div>
-                                    <h3 className="text-3xl font-bold text-white mb-6 italic">HVAC Focus</h3>
-                                    <p className="text-slate-300 text-lg leading-relaxed mb-10 font-light">Targeting the largest energy consumer (60-70% of building load) for immediate ROI.</p>
-                                    <div className="flex flex-wrap gap-3">
-                                        {['Terminal Units', 'Chillers', 'FCUs'].map(li => (
-                                            <span key={li} className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-slate-300 group-hover:bg-emerald-500/10 transition-colors">{li}</span>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="glass-card p-12 rounded-[4rem] border-white/15 hover:border-blue-500/30 transition-all group bg-slate-900/40">
-                                    <div className="mb-10 p-5 bg-blue-500/20 rounded-2xl inline-block group-hover:scale-110 transition-transform border border-blue-500/20">
-                                        <Icon name="file-text" className="text-blue-400" size={36} />
-                                    </div>
-                                    <h3 className="text-3xl font-bold text-white mb-6 italic">Audit Evidence</h3>
-                                    <p className="text-slate-300 text-lg leading-relaxed mb-10 font-light">Every anomaly creates a "Wastage Package" used to justify maintenance and budget recovery.</p>
-                                    <div className="flex flex-wrap gap-3">
-                                        {['Cost Impact', 'CO2 Delta', 'Proof of Loss'].map(li => (
-                                            <span key={li} className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-slate-300 group-hover:bg-blue-500/10 transition-colors">{li}</span>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="p-12 rounded-[4rem] bg-emerald-500/10 border border-emerald-500/40 relative overflow-hidden group shadow-2xl shadow-emerald-500/20">
-                                    <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 blur-[80px] rounded-full" />
-                                    <div className="relative z-10">
-                                        <div className="flex justify-between items-center mb-12">
-                                            <span className="text-xs font-black uppercase text-emerald-400 tracking-[0.4em]">Live Baseline Deviation</span>
-                                            <div className="flex gap-2">
-                                                <div className="w-1.5 h-6 bg-emerald-500 animate-[bounce_1s_infinite]" />
-                                                <div className="w-1.5 h-6 bg-emerald-500 animate-[bounce_1.4s_infinite]" />
-                                                <div className="w-1.5 h-6 bg-emerald-500 animate-[bounce_0.8s_infinite]" />
-                                            </div>
-                                        </div>
-                                        <div className="text-8xl font-bold text-white mb-2 tracking-tighter italic">{wastageValue}%</div>
-                                        <div className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-12">System Leakage Rate</div>
-                                        
-                                        <div className="space-y-6 pt-10 border-t border-white/20">
-                                            <div className="flex justify-between text-sm">
-                                                <span className="text-slate-400 font-bold uppercase tracking-widest">Budget Drift (EST)</span>
-                                                <span className="text-emerald-400 font-black text-lg">₹{(wastageValue * 1.5).toFixed(1)}L / MO</span>
-                                            </div>
-                                            <div className="flex justify-between text-sm">
-                                                <span className="text-slate-400 font-bold uppercase tracking-widest">Logic Trust</span>
-                                                <span className="text-white font-black italic text-lg uppercase">Audit Ready</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* About Us Section */}
-                    <section id="about" className="py-40 px-6 z-10 relative">
-                        <div className="max-w-7xl mx-auto">
-                            <div className="text-center max-w-3xl mx-auto mb-32">
-                                <h2 className="text-5xl md:text-7xl font-bold text-white mb-8 italic uppercase tracking-tighter">The Team</h2>
-                                <p className="text-slate-300 text-2xl font-light italic">Building the future of explainable building governance.</p>
-								<p className="text-slate-300 text-2xl font-light italic">Our approach is grounded in operational reality. We prioritize clarity over complexity, measurable outcomes over theoretical optimization, and solutions that teams can trust and act on with confidence.</p>
-                            </div>
-
-                            <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
-                                <div className="glass-card p-12 rounded-[4rem] border-white/15 bg-slate-900/40 hover:border-emerald-500/30 transition-all group">
-                                    <div className="mb-8 w-24 h-24 rounded-2xl overflow-hidden border-2 border-emerald-500/30 shadow-lg shadow-emerald-500/10">
-										<img src="Ravi.jpg" alt="Ravi Raj" className="w-full h-full object-cover" />
-									</div>
-                                    <h3 className="text-4xl font-bold text-white mb-2 italic">Ravi Raj</h3>
-                                    <p className="text-emerald-400 text-xs font-black uppercase tracking-[0.4em] mb-6">Founder & Product Lead</p>
-                                    <p className="text-slate-300 text-lg leading-relaxed font-light">
-                                        Focused on building the read-only operational layer that bridges the gap between complex BMS data and actionable financial insights.
-                                    </p>
-                                </div>
-
-                                <div className="glass-card p-12 rounded-[4rem] border-white/15 bg-slate-900/40 hover:border-blue-500/30 transition-all group">
-                                    <div className="mb-8 w-24 h-24 rounded-2xl overflow-hidden border-2 border-emerald-500/30 shadow-lg shadow-emerald-500/10">
-										<img src="Vivek.jpg" alt="Vivek Ramanan" className="w-full h-full object-cover" />
-									</div>
-                                    <h3 className="text-4xl font-bold text-white mb-2 italic">Vivek Ramanan</h3>
-                                    <p className="text-blue-400 text-xs font-black uppercase tracking-[0.4em] mb-6">Operations Lead</p>
-                                    <p className="text-slate-300 text-lg leading-relaxed font-light">
-                                        Driving the mission to transform building energy usage from a hidden cost into a transparent, auditable asset for facilities management.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Vision Roadmap */}
-                    <section id="roadmap" className="py-40 px-6 relative z-10">
-                        <div className="max-w-5xl mx-auto">
-                            <div className="text-center mb-32">
-                                <h2 className="text-6xl font-bold text-white mb-8 italic uppercase tracking-tighter">Vision Roadmap</h2>
-                                <p className="text-slate-300 max-w-xl mx-auto text-2xl font-light">From specific HVAC leakage to total building governance.</p>
-                            </div>
-
-                            <div className="relative">
-                                <div className="absolute left-8 top-0 bottom-0 w-[2px] bg-gradient-to-b from-emerald-500/60 via-slate-700 to-transparent hidden md:block" />
-                                
-                                {[
-                                    { p: "PHASE 01", t: "HVAC Intelligence", d: "Deep audit of terminal units and chiller drift. Detecting after-hours waste and schedule drift.", i: "wind", active: true },
-                                    { p: "PHASE 02", t: "Unified Governance", d: "Expansion into lighting, elevators, and vertical transport sync across the BMS.", i: "layers", active: false },
-                                    { p: "PHASE 03", t: "Portfolio Layer", d: "Site-to-site comparison and carbon reporting inputs for management & sustainability teams.", i: "globe", active: false }
-                                ].map((step, idx) => (
-                                    <div key={idx} className={`relative flex flex-col md:flex-row gap-12 md:pl-28 pb-24 group transition-opacity duration-1000 ${step.active ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}>
-                                        <div className={`absolute left-4 md:left-4 w-10 h-10 rounded-2xl flex items-center justify-center z-20 border transition-all ${step.active ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.6)] scale-110' : 'bg-slate-800 text-slate-400 border-white/10'}`}>
-                                            <Icon name={step.i} size={20} />
-                                        </div>
-                                        <div className={`flex-1 p-12 rounded-[4rem] border transition-all duration-700 ${step.active ? 'glass-card border-emerald-500/30 bg-slate-900/90 shadow-2xl' : 'glass-card border-white/5 bg-slate-900/40'}`}>
-                                            <span className={`text-xs font-black tracking-[0.6em] mb-4 block ${step.active ? 'text-emerald-400' : 'text-slate-500'}`}>{step.p}</span>
-                                            <h3 className="text-4xl font-bold text-white mb-6 italic">{step.t}</h3>
-                                            <p className="text-slate-200 text-xl leading-relaxed font-light">{step.d}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Contact CTA */}
-                    <section id="contact" className="py-40 px-6 relative z-10">
-                        <div className="max-w-6xl mx-auto glass-card rounded-[6rem] p-16 md:p-32 text-center relative overflow-hidden group border-white/20 bg-slate-900/90 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)]">
-                            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-emerald-500/15 to-blue-500/15 -z-10" />
-                            <h2 className="text-6xl md:text-[8rem] font-bold text-white mb-12 tracking-tight leading-[0.85] uppercase">
-                                Insight before <br/> <span className="text-emerald-400 italic font-light not-uppercase">optimisation.</span>
-                            </h2>
-                            <p className="text-2xl md:text-3xl text-slate-200 mb-16 max-w-2xl mx-auto font-light leading-relaxed">
-                                Ready to reveal the hidden energy in your airport or IT park? Start your <span className="text-white font-bold border-b-2 border-emerald-500">read-only</span> audit today.
-                            </p>
-                            <div className="flex flex-col items-center gap-16">
-                                <a href="mailto:contact@energylens.ai" className="glow-button bg-white text-slate-950 px-16 py-8 rounded-[2.5rem] font-black text-2xl flex items-center gap-6 transition-all shadow-2xl">
-                                    Request Pilot Audit <Icon name="arrow-right" size={32} />
-                                </a>
-                                <div className="flex flex-wrap justify-center items-center gap-12 text-xs font-black uppercase tracking-[0.6em] text-slate-400">
-                                    <span className="hover:text-emerald-400 transition-colors">Ops-Safe</span>
-                                    <div className="w-2 h-2 rounded-full bg-slate-700" />
-                                    <span className="hover:text-emerald-400 transition-colors">Vendor-Agnostic</span>
-                                    <div className="w-2 h-2 rounded-full bg-slate-700" />
-                                    <span className="hover:text-emerald-400 transition-colors">Audit-Ready</span>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Footer */}
-                    <footer className="py-24 border-t border-white/10 text-center relative z-10 bg-slate-950">
-                        <div className="flex justify-center items-center gap-6 mb-12">
-                            <div className="p-3 bg-emerald-500 rounded-2xl shadow-xl shadow-emerald-500/30">
-                                <Icon name="gauge" size={24} className="text-slate-950" />
-                            </div>
-                            <span className="font-bold text-white tracking-tighter text-3xl uppercase italic">INFRA<span className="text-emerald-400">LYTIX</span></span>
-                        </div>
-                        <p className="text-xs font-bold uppercase tracking-[0.6em] text-slate-500">© 2026 Operational Governance Layer · Built by AI Engineers for the World</p>
-						<br></br>
-						<p className="text-[20px] text-slate-600 tracking-widest uppercase">Contact: ravirajvijayaraj@zohomail.in | Vvekramanan@gmail.com</p>
-                    </footer>
+      {/* Problem */}
+      <section id="problem" className="py-40 px-6 z-10 relative bg-slate-900/40 border-y border-white/10">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-24 items-center">
+          <div>
+            <span className="text-[11px] font-black uppercase tracking-[0.4em] text-teal-400 mb-6 block">The Problem</span>
+            <h2 className="text-5xl md:text-6xl font-bold text-white mb-10 leading-[0.95] tracking-tight">
+              Existing tools monitor.<br/><span className="text-teal-400 font-light italic">None evaluate necessity.</span>
+            </h2>
+            <p className="text-xl text-slate-200 mb-12 font-light leading-relaxed">
+              Your BMS controls the system. Your EMS reports consumption. Your FDD detects faults. But none of them ask whether the energy was <span className="text-white font-bold">actually needed</span> — creating a silent, invisible drain on your operations.
+            </p>
+            <div className="grid gap-8">
+              {[
+                { t: "Ghost Running", d: "HVAC and lighting active in empty zones outside occupancy hours. If occupancy is 0, waste is 100%." },
+                { t: "Logic Friction", d: "Simultaneous heating and cooling, static setpoints, overcooling past comfort requirements. No faults triggered — waste is invisible." },
+                { t: "The Context Gap", d: "No system cross-references operations against real-world context like schedules, occupancy, or weather." }
+              ].map((item, i) => (
+                <div key={i} className="flex gap-6 group">
+                  <div className="p-3 h-fit bg-teal-500/20 rounded-xl group-hover:bg-teal-500/30 transition-colors border border-teal-500/20 shrink-0">
+                    <Icon name="alert-triangle" size={20} className="text-teal-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold text-lg mb-1">{item.t}</h4>
+                    <p className="text-slate-400 text-base leading-relaxed">{item.d}</p>
+                  </div>
                 </div>
-            );
-        };
+              ))}
+            </div>
+          </div>
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+          <div className="glass-card p-10 rounded-[3rem] relative overflow-hidden border-white/20 shadow-teal-500/10 shadow-2xl bg-slate-900/80">
+            <div className="flex justify-between items-center mb-8">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-red-500 pulse-ring shadow-[0_0_12px_rgba(239,68,68,0.7)]" />
+                <span className="text-xs font-black tracking-widest uppercase text-slate-300">Active Wastage Detected</span>
+              </div>
+              <div className="px-3 py-1.5 rounded bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] font-black uppercase">AHU-04</div>
+            </div>
+            <div className="bg-slate-800/60 rounded-2xl p-6 mb-6 border border-white/5">
+              <p className="text-teal-400 text-sm font-bold mb-1">EnergyLens Intelligence</p>
+              <p className="text-slate-200 text-sm leading-relaxed">System operating in Schedule Drift — HVAC running during non-occupancy hours.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              {[
+                { label: "Projected Monthly Leakage", value: "$2,070", highlight: true },
+                { label: "Ghost Runtime", value: "6 hrs/day", highlight: false },
+                { label: "Energy Wasted", value: "276 kWh", highlight: false },
+                { label: "Carbon Footprint", value: "196 kg CO₂e", highlight: true },
+              ].map((stat, i) => (
+                <div key={i} className={`p-4 rounded-xl border ${stat.highlight ? 'border-teal-500/30 bg-teal-500/10' : 'border-white/10 bg-slate-800/40'}`}>
+                  <p className="text-[10px] uppercase tracking-wider text-slate-400 mb-1">{stat.label}</p>
+                  <p className={`text-xl font-black ${stat.highlight ? 'text-teal-400' : 'text-white'}`}>{stat.value}</p>
+                </div>
+              ))}
+            </div>
+            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+              <p className="text-red-400 text-xs font-bold uppercase tracking-wider">Projected Annual Leakage</p>
+              <p className="text-3xl font-black text-white mt-1">$24,840</p>
+              <p className="text-slate-400 text-xs mt-1">From one system. Zero alarms triggered.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section id="how" className="py-40 px-6 z-10 relative">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-24">
+            <span className="text-[11px] font-black uppercase tracking-[0.4em] text-teal-400 mb-6 block">The Solution</span>
+            <h2 className="text-5xl md:text-7xl font-bold text-white mb-8">How EnergyLens Works</h2>
+            <p className="text-slate-300 text-xl font-light leading-relaxed max-w-2xl mx-auto">A read-only analytics layer that sits on top of your existing BMS/EMS infrastructure. No new hardware. No system changes. No IT risk.</p>
+          </div>
+
+          <div className="space-y-6">
+            {[
+              { num: "01", icon: "database", title: "Integration", color: "teal", desc: "We connect to data your building already records — BMS feeds, EMS exports, and optional contextual inputs like occupancy schedules and weather. No new sensors or hardware required." },
+              { num: "02", icon: "cpu", title: "Pattern Detection", color: "blue", desc: "EnergyLens cross-references actual system behaviour against when the building is occupied. Schedule drift, ghost runtime, overcooling, and simultaneous heating/cooling are all flagged — with exact times, locations, and cost." },
+              { num: "03", icon: "file-text", title: "Actionable Report", color: "teal", desc: "You receive a plain-language report prioritised by dollar, kWh, and carbon impact. Not a black box — every finding comes with a clear explanation and a specific recommended action." }
+            ].map((step, i) => (
+              <div key={i} className="glass-card p-10 rounded-[2.5rem] border-white/15 bg-slate-900/60 flex flex-col md:flex-row gap-8 items-start group hover:border-teal-500/20 transition-all">
+                <div className={`w-16 h-16 rounded-2xl ${step.color === 'teal' ? 'bg-teal-500/20 border-teal-500/30' : 'bg-blue-500/20 border-blue-500/30'} flex items-center justify-center shrink-0 border group-hover:scale-110 transition-transform`}>
+                  <Icon name={step.icon} size={28} className={step.color === 'teal' ? 'text-teal-400' : 'text-blue-400'} />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-4 mb-3">
+                    <span className={`text-xs font-black tracking-[0.5em] ${step.color === 'teal' ? 'text-teal-400' : 'text-blue-400'}`}>STEP {step.num}</span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-3">{step.title}</h3>
+                  <p className="text-slate-300 text-lg leading-relaxed font-light">{step.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 grid md:grid-cols-3 gap-6">
+            {[
+              { label: "Seamless Integration", desc: "Zero hardware disruption — layers onto existing infrastructure" },
+              { label: "Contextual Intelligence", desc: "Translates ghost running into plain-language business logic" },
+              { label: "Actionable ROI", desc: "Instant visibility into dollar, kWh, and carbon cost per finding" }
+            ].map((item, i) => (
+              <div key={i} className="bg-teal-500/10 border border-teal-500/20 rounded-2xl p-6 text-center">
+                <p className="text-teal-400 font-bold text-sm mb-2">{item.label}</p>
+                <p className="text-slate-300 text-sm leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Impact */}
+      <section id="impact" className="py-40 px-6 z-10 relative bg-slate-900/60 border-y border-white/10">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-24">
+            <span className="text-[11px] font-black uppercase tracking-[0.4em] text-teal-400 mb-6 block">Example Impact</span>
+            <h2 className="text-5xl md:text-7xl font-bold text-white mb-8">The Cost of Six Hours</h2>
+            <p className="text-slate-300 text-xl font-light italic">Conservative estimate for a standard 10,000m² commercial facility in New Zealand.</p>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8 mb-16">
+            <div className="glass-card p-10 rounded-[3rem] border-white/15 hover:border-teal-500/30 transition-all group bg-slate-900/40 text-center">
+              <Icon name="clock" className="text-teal-400 mx-auto mb-6" size={40} />
+              <div className="text-6xl font-black text-white mb-2">6 hrs</div>
+              <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400 font-black mb-4">Daily Ghost Runtime</p>
+              <p className="text-slate-400 text-sm">HVAC operating beyond scheduled hours, every day. No fault. No alarm.</p>
+            </div>
+            <div className="glass-card p-10 rounded-[3rem] border-white/15 hover:border-teal-500/30 transition-all group bg-slate-900/40 text-center">
+              <Icon name="zap" className="text-teal-400 mx-auto mb-6" size={40} />
+              <div className="text-6xl font-black text-white mb-2">600 kWh</div>
+              <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400 font-black mb-4">Energy Wasted Daily</p>
+              <p className="text-slate-400 text-sm">Equivalent to powering 20 average NZ homes for a day. 72 kg CO₂e at NZ grid average.</p>
+            </div>
+            <div className="p-10 rounded-[3rem] bg-teal-500/10 border border-teal-500/40 relative overflow-hidden group shadow-2xl shadow-teal-500/20 text-center">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-teal-500/20 blur-[80px] rounded-full" />
+              <div className="relative z-10">
+                <Icon name="trending-up" className="text-teal-400 mx-auto mb-6" size={40} />
+                <div className="text-6xl font-black text-white mb-2">$54K</div>
+                <p className="text-[11px] uppercase tracking-[0.3em] text-teal-400 font-black mb-4">Annual Waste</p>
+                <p className="text-slate-300 text-sm">From one system. One building. Zero alarms triggered. ~26 tonnes CO₂e per year.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="glass-card p-8 rounded-2xl border-white/10 text-center max-w-3xl mx-auto">
+            <p className="text-slate-300 text-lg italic">"No faults. No alarms. No flags. The system was operating as programmed — just not as needed."</p>
+          </div>
+
+          <div className="mt-20">
+            <h3 className="text-center text-2xl font-bold text-white mb-10">Why Existing Tools Miss This</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="pb-4 text-[11px] uppercase tracking-widest text-slate-400 font-black pr-8">Tool</th>
+                    <th className="pb-4 text-[11px] uppercase tracking-widest text-slate-400 font-black pr-8">What It Does</th>
+                    <th className="pb-4 text-[11px] uppercase tracking-widest text-slate-400 font-black">What It Misses</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {[
+                    { tool: "BMS", does: "Controls systems", misses: "Doesn't question necessity" },
+                    { tool: "EMS", does: "Reports energy usage — where and when", misses: "Doesn't evaluate operational context" },
+                    { tool: "FDD", does: "Detects equipment faults", misses: "Misses operational inefficiency" },
+                    { tool: "AI Optimisation", does: "Optimises performance", misses: "May not assess operational necessity" },
+                  ].map((row, i) => (
+                    <tr key={i} className="hover:bg-white/3 transition-colors">
+                      <td className="py-4 pr-8 text-slate-300 font-bold">{row.tool}</td>
+                      <td className="py-4 pr-8 text-slate-400 text-sm">{row.does}</td>
+                      <td className="py-4 text-red-400 text-sm">{row.misses}</td>
+                    </tr>
+                  ))}
+                  <tr className="bg-teal-500/10">
+                    <td className="py-4 pr-8 text-teal-400 font-black">EnergyLens</td>
+                    <td className="py-4 pr-8 text-teal-300 text-sm font-bold">Asks: was this necessary?</td>
+                    <td className="py-4 text-teal-400 text-sm font-bold">—</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Team */}
+      <section id="team" className="py-40 px-6 z-10 relative">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-24">
+            <span className="text-[11px] font-black uppercase tracking-[0.4em] text-teal-400 mb-6 block">The Team</span>
+            <h2 className="text-5xl md:text-7xl font-bold text-white mb-8">Who We Are</h2>
+            <p className="text-slate-300 text-xl font-light max-w-2xl mx-auto">Operational systems thinkers building the analytics layer that buildings have been missing.</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-10 max-w-4xl mx-auto">
+            {[
+              {
+                img: "Ravi.jpg", name: "Ravi Raj", role: "Founder & Product Lead", color: "teal",
+                bio: "Background in industrial automation and real-time operational systems. Built EnergyLens from a systems-thinking perspective — asking why operational data isn't being used to question necessity, not just report consumption."
+              },
+              {
+                img: "Vivek.jpg", name: "Vivek Mathiarasan", role: "Co-founder & Operations", color: "blue",
+                bio: "Focused on translating EnergyLens insights into operational reality for facilities teams. Driving stakeholder engagement and ensuring findings are actionable, not just analytical."
+              }
+            ].map((person, i) => (
+              <div key={i} className={`glass-card p-10 rounded-[3rem] border-white/15 bg-slate-900/40 hover:border-${person.color}-500/30 transition-all group`}>
+                <div className="mb-6 w-20 h-20 rounded-2xl overflow-hidden border-2 border-teal-500/30 shadow-lg">
+                  <img src={person.img} alt={person.name} className="w-full h-full object-cover" />
+                </div>
+                <h3 className="text-3xl font-bold text-white mb-1">{person.name}</h3>
+                <p className={`text-${person.color}-400 text-xs font-black uppercase tracking-[0.4em] mb-5`}>{person.role}</p>
+                <p className="text-slate-300 text-base leading-relaxed font-light">{person.bio}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-12 glass-card p-8 rounded-2xl border-teal-500/20 bg-teal-500/5 max-w-3xl mx-auto text-center">
+            <p className="text-teal-400 text-xs font-black uppercase tracking-widest mb-3">Recognition</p>
+            <p className="text-slate-200 text-base">Selected for the <span className="text-white font-bold">University of Auckland Velocity Ideas Challenge</span> · Reviewed by <span className="text-white font-bold">Auckland Momentum Investment Committee</span> · Featured at <span className="text-white font-bold">AI Solutioneering, Tech Week 2025</span></p>
+          </div>
+        </div>
+      </section>
+
+      {/* Roadmap */}
+      <section id="roadmap" className="py-40 px-6 relative z-10 bg-slate-900/40 border-y border-white/10">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-24">
+            <span className="text-[11px] font-black uppercase tracking-[0.4em] text-teal-400 mb-6 block">Vision</span>
+            <h2 className="text-5xl md:text-7xl font-bold text-white mb-8">Roadmap</h2>
+            <p className="text-slate-300 text-xl font-light">From pilot validation to portfolio-scale operational intelligence.</p>
+          </div>
+          <div className="relative">
+            <div className="absolute left-8 top-0 bottom-0 w-[2px] bg-gradient-to-b from-teal-500/60 via-slate-700 to-transparent hidden md:block" />
+            {[
+              { phase: "PHASE 01", icon: "search", title: "Pilot & Validate", active: true, desc: "Validate EnergyLens with real building data. Prove measurable savings in one building, refine the detection methodology, establish ROI with a real facilities team." },
+              { phase: "PHASE 02", icon: "layers", title: "Expand & Scale", active: false, desc: "Expand across building portfolios — universities, hospitals, commercial operators. Integrate with BMS/EMS APIs for live data feeds beyond CSV exports." },
+              { phase: "PHASE 03", icon: "globe", title: "Portfolio Intelligence", active: false, desc: "Site-to-site comparison, carbon reporting for ESG and net-zero compliance, and multi-building operational benchmarking for facilities management teams." }
+            ].map((step, i) => (
+              <div key={i} className={`relative flex flex-col md:flex-row gap-10 md:pl-28 pb-20 group transition-opacity duration-700 ${step.active ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}>
+                <div className={`absolute left-4 w-10 h-10 rounded-2xl flex items-center justify-center z-20 border transition-all ${step.active ? 'bg-teal-500 text-slate-950 border-teal-400 shadow-[0_0_25px_rgba(0,168,150,0.6)] scale-110' : 'bg-slate-800 text-slate-400 border-white/10'}`}>
+                  <Icon name={step.icon} size={18} />
+                </div>
+                <div className={`flex-1 p-10 rounded-[3rem] border transition-all ${step.active ? 'glass-card border-teal-500/30 bg-slate-900/90 shadow-2xl' : 'glass-card border-white/5 bg-slate-900/40'}`}>
+                  <span className={`text-xs font-black tracking-[0.6em] mb-3 block ${step.active ? 'text-teal-400' : 'text-slate-500'}`}>{step.phase} {step.active ? '· Active' : ''}</span>
+                  <h3 className="text-3xl font-bold text-white mb-4">{step.title}</h3>
+                  <p className="text-slate-300 text-lg leading-relaxed font-light">{step.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section id="contact" className="py-40 px-6 relative z-10">
+        <div className="max-w-5xl mx-auto glass-card rounded-[4rem] p-16 md:p-24 text-center relative overflow-hidden border-white/20 bg-slate-900/90 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)]">
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-teal-500/10 to-blue-500/10 -z-10" />
+          <h2 className="text-5xl md:text-7xl font-bold text-white mb-8 tracking-tight leading-[0.9]">
+            Let's find out what<br/><span className="text-teal-400 italic font-light">your buildings are hiding.</span>
+          </h2>
+          <p className="text-xl text-slate-200 mb-12 max-w-2xl mx-auto font-light leading-relaxed">
+            A free 4-week pilot audit on one building. We analyse your existing data and return a full findings report — regardless of outcome. Read-only. No IT risk. No disruption.
+          </p>
+          <div className="flex flex-col items-center gap-10">
+            <a href="mailto:rvij007@aucklanduni.ac.nz" className="glow-button bg-teal-500 text-slate-950 px-14 py-6 rounded-[2rem] font-black text-xl flex items-center gap-4 transition-all shadow-2xl">
+              Request a Free Pilot Audit <Icon name="arrow-right" size={24} />
+            </a>
+            <div className="flex flex-wrap justify-center items-center gap-8 text-xs font-black uppercase tracking-[0.5em] text-slate-400">
+              <span className="hover:text-teal-400 transition-colors">Read-Only Access</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+              <span className="hover:text-teal-400 transition-colors">No New Hardware</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+              <span className="hover:text-teal-400 transition-colors">No IT Risk</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+              <span className="hover:text-teal-400 transition-colors">Report Guaranteed</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-16 border-t border-white/10 text-center relative z-10 bg-slate-950">
+        <div className="flex justify-center items-center gap-4 mb-8">
+          <div className="p-2.5 bg-teal-500 rounded-xl shadow-xl shadow-teal-500/30">
+            <Icon name="eye" size={20} className="text-slate-950" />
+          </div>
+          <span className="font-bold text-white tracking-tighter text-2xl">Energy<span className="text-teal-400 font-light">Lens</span></span>
+        </div>
+        <p className="text-xs font-bold uppercase tracking-[0.4em] text-slate-500 mb-4">Operational Intelligence for Buildings · Auckland, New Zealand</p>
+        <p className="text-sm text-slate-500">Contact: <a href="mailto:rvij007@aucklanduni.ac.nz" className="text-teal-500 hover:text-teal-400 transition-colors">rvij007@aucklanduni.ac.nz</a></p>
+        <p className="text-xs text-slate-600 mt-6">© 2025 EnergyLens. All rights reserved.</p>
+      </footer>
+    </div>
+  );
+};
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
 </body>
 </html>
